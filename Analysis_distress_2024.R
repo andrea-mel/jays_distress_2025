@@ -6,7 +6,7 @@ library(ordinal) # for CLMM
 library(emmeans) # for CLMM comparisons
 
 # load data:
-mydata <- read.csv("C:/Users/ameltzer/ownCloud/Andrea/PhD/Experiments/Distress/2022/R/mydata.csv", sep = ";")
+mydata <- read.csv("mydata.csv", sep = ";")
 
 # Sample size per each treatment
 nE <- length(which(mydata$treatment=="distress familiar")) # 27
