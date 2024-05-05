@@ -14,6 +14,10 @@ nC <- length(which(mydata$treatment=="distress unfamiliar")) # 24
 nP <- length(which(mydata$treatment=="pine grosbeak")) # 24
 nS <- length(which(mydata$treatment=="social unfamiliar")) # 24
 
+
+#--------------------------
+# --- for Main text -------
+#--------------------------
 # figure XY: response category vs social bond:
 ggscatter(mydata[which(mydata$treatment=="distress familiar"),], x = "OBS_PercEatDyad", y = "category", add = "reg.line",
           title = "",
@@ -26,6 +30,7 @@ ggscatter(mydata[which(mydata$treatment=="distress familiar"),], x = "OBS_PercEa
         legend.position = "right",
         legend.box = "horizontal")
 
+#----------------
 #- Cumulative link mixed models - what affects an individual’s probability and strength of helping behaviour?
 mydata$category <- as.factor(mydata$category)
 mydata$target.ID <- as.factor(mydata$target.ID)
@@ -38,6 +43,7 @@ summary(modelD) # individual effects: tests null hypothesis that each coefficien
 
 emmeansTab <- as.data.frame(pairwise$contrasts)[,-4]
 
+#----------------
 # table XY:
 emmeansTab[,c(2:5)] <- round(emmeansTab[,c(2:5)], digits=3)
 
@@ -61,6 +67,7 @@ newdf_long <- reshape2::melt(newdf)
 names(newdf_long) <- c("category","treatment", "value")
 newdf_long$category <- as.factor(newdf_long$category)
 
+#----------------
 # figure XY: treatment vs. reponse category
 ggplot(newdf_long, aes(x = treatment, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
@@ -89,6 +96,7 @@ ggplot(newdf_long, aes(x = treatment, y = value, fill = category)) +
   annotate("text", x = 4, y = 0.04, label = nP, size = 3, color = "white")
 
 
+#----------------
 ### compare status: breeder vs. non-breeder:
 newB <- matrix(ncol=2,nrow=5) # table for percentages
 colnames(newB) <- c("breeder","non-breeder")
@@ -109,6 +117,7 @@ newB_long <- reshape2::melt(newB)
 names(newB_long) <- c("category","status", "value")
 newB_long$category <- as.factor(newB_long$category)
 
+#----------------
 # figure XY: response category vs status
 ggplot(newB_long, aes(x = status, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
@@ -137,15 +146,22 @@ for (j in 1:nrow(newBCount)){
   newBCount[j,2] <- nbr_count
 }
 
-# Perform Fisher's exact test on the entire table 5x2
-(fisher_test_result <- fisher.test(newBCount)) # p=0.88 -- not enough evidence to reject the null hypothesis (H0 = there is no difference) -- no statistically significant association between the categories and the different status
+#----------------
+## Perform the Mann-Whitney U Test
+
+# Create the breeder and non-breeder vectors
+newBCount<- as.data.frame(newBCount)
+breeder <- rep(4:0, times = newBCount$breeder)
+non_breeder <- rep(4:0, times = newBCount$`non-breeder`)
+
+# Perform the Mann-Whitney U Test
+(test_result <- wilcox.test(breeder, non_breeder)) # W = 56.5, p-value = 0.9478
 
 
-
-
-
-
+#--------------------------------------
 #-------  Supplemental material: -----
+#--------------------------------------
+
 #- PCA on helping behaviors only ------
 library(psych) # for PCA
 
@@ -160,6 +176,7 @@ subsetJayS <- scale(mydataN[,5:9])
 # scree plot:
 scree(subsetJayS) # suggested: take 2 factors
 
+#----------------
 # table XY: PCA results
 (myPCA <- psych::principal(subsetJayS, nfactors = 2, rotate = "varimax", scores = T))
 
@@ -168,6 +185,7 @@ colnames(myPCA$scores)[1] <- 'DIS'
 colnames(myPCA$scores)[2] <- 'other'
 mydataN <- cbind(mydataN,myPCA$scores) 
 
+#----------------
 # figure XY:
 box <- boxplot(DIS~treatment, data=mydataN, ylab = "PC1: helping", main=NA,
                names=c("distress \nunfamiliar","distress \nfamiliar","pine \ngrosbeak","social \nunfamiliar"),
@@ -181,10 +199,12 @@ mydataN$target.ID <- as.factor(mydataN$target.ID)
 
 ano <- aov(DIS ~ treatment, data = mydataN) # ANOVA
 
+#----------------
 # table XY: Tukey test of ANOVA
 (tukey <- TukeyHSD(ano)) # Tukey-test of ANOVA (to get p-vals)
 
 
+#----------------
 # figure XY: PCA vs social bond
 ggscatter(mydataN[which(mydataN$treatment=="distress familiar"),], x = "OBS_PercEatDyad", y = "DIS", add = "reg.line",
           title = "",
