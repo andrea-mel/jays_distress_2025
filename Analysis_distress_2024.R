@@ -6,32 +6,31 @@ library(ordinal) # for CLMM
 library(emmeans) # for CLMM comparisons
 
 # load data:
-mydata <- read.csv("mydata.csv", sep = ";")
+mydata <- read.csv("mydata.csv", sep = ";") 
 
 # Sample size per each treatment
 nE <- length(which(mydata$treatment=="distress familiar")) # 27
 nC <- length(which(mydata$treatment=="distress unfamiliar")) # 24
 nP <- length(which(mydata$treatment=="pine grosbeak")) # 24
-nS <- length(which(mydata$treatment=="social unfamiliar")) # 24
+nS <- length(which(mydata$treatment=="social unfamiliar")) # 26
 
 
-#--------------------------
+#------------------------------------------------------------------------------
 # --- for Main text -------
-#--------------------------
-# figure XY: response category vs social bond:
+#------------------------------------------------------------------------------
+
+#------- Figure 3: 
+# Response strength to a distress call in relation to social bond 
 ggscatter(mydata[which(mydata$treatment=="distress familiar"),], x = "OBS_PercEatDyad", y = "category", add = "reg.line",
           title = "",
           conf.int = TRUE, cor.method = "spearman", # spearman for one continuoes and one ordinal variable
           # cor.coef = TRUE, 
-          xlab = "dyadic social unfamiliar bond", ylab = "Response strength") +
-  geom_count()+# bond: eating in dyad [% of time eating]
-  scale_size_area()+
-  theme(legend.direction = "vertical", 
-        legend.position = "right",
-        legend.box = "horizontal")
+          xlab = "social bond with caller", ylab = "Response strength",
+          point = "FALSE") +
+  geom_jitter(height = 0.15, width = 0, alpha=0.5, size=3)
 
-#----------------
-#- Cumulative link mixed models - what affects an individual’s probability and strength of helping behaviour?
+###################
+#- Cumulative link mixed models:
 mydata$category <- as.factor(mydata$category)
 mydata$target.ID <- as.factor(mydata$target.ID)
 
@@ -43,14 +42,17 @@ summary(modelD) # individual effects: tests null hypothesis that each coefficien
 
 emmeansTab <- as.data.frame(pairwise$contrasts)[,-4]
 
-#----------------
-# table XY:
-emmeansTab[,c(2:5)] <- round(emmeansTab[,c(2:5)], digits=3)
+#------- Table 1: 
+# Tukey's pairwise comparisons of the output of CLMM
+(emmeansTab[,c(2:5)] <- round(emmeansTab[,c(2:5)], digits=3))
 
-# to prepare corresponding plot:
-newdf <- matrix(ncol=4,nrow=5) # table for percentages
-colnames(newdf) <- c("distress familiar","distress unfamiliar","social unfamiliar","pine grosbeak")
+
+###################
+# to prepare plot:
+newdf <- matrix(ncol=4,nrow=5) # empty table for percentages
+colnames(newdf) <- c("distress familiar","distress unfamiliar","social unfamiliar","pine grosbeak") # treatments
 rownames(newdf) <- c(4,3,2,1,0) # categories
+
 for (i in 1:ncol(newdf)){
   tmp_name <- colnames(newdf)[i]
   tmp_data <- mydata[which(mydata$treatment==tmp_name),]
@@ -61,20 +63,21 @@ for (i in 1:ncol(newdf)){
     newdf[j,i] <- tmp_count/tmp_length
   }
 }
+
 newdf <- as.data.frame(newdf)
 newdf$category <- rownames(newdf)
-newdf_long <- reshape2::melt(newdf)
+newdf_long <- reshape2::melt(newdf) # to re-format
 names(newdf_long) <- c("category","treatment", "value")
 newdf_long$category <- as.factor(newdf_long$category)
 
-#----------------
-# figure XY: treatment vs. reponse category
+#------- Figure 2 a): 
+# Response of focal individuals, measured in ordinal categories # different playback treatments
 ggplot(newdf_long, aes(x = treatment, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
   scale_fill_manual(values = rev(c("#141c44","#042d94","steelblue","lightskyblue2","azure2")),
                     labels = c("none", "low", "medium", "high", "maximal")) +
   labs(x = "Treatment", y = "Proportion of response", title = "") +
-  scale_x_discrete(labels = c("distress \nfamiliar", "distress \nunfamiliar", "social unfamiliar \nunfamiliar", "pine \ngrosbeak")) +
+  scale_x_discrete(labels = c("distress \nfamiliar", "distress \nunfamiliar", "social \nunfamiliar", "pine \ngrosbeak")) +
   theme_classic()+
   theme(legend.position = "right",
         axis.text.x = element_text(size = 11), 
@@ -96,10 +99,11 @@ ggplot(newdf_long, aes(x = treatment, y = value, fill = category)) +
   annotate("text", x = 4, y = 0.04, label = nP, size = 3, color = "white")
 
 
-#----------------
-### compare status: breeder vs. non-breeder:
-newB <- matrix(ncol=2,nrow=5) # table for percentages
-colnames(newB) <- c("breeder","non-breeder")
+###################
+### compare status: breeder vs. non-breeder
+# to prepare plot:
+newB <- matrix(ncol=2,nrow=5) # empty table for percentages
+colnames(newB) <- c("breeder","non-breeder") # breeding status
 rownames(newB) <- c(4,3,2,1,0) # categories
 
 br <- mydata[which(mydata$treatment=="distress familiar"&mydata$status_caller=="br"),]
@@ -113,12 +117,12 @@ for (j in 1:nrow(newB)){
   newB[j,2] <- nbr_count/nrow(nbr)
 }
 
-newB_long <- reshape2::melt(newB)
+newB_long <- reshape2::melt(newB) # re-format
 names(newB_long) <- c("category","status", "value")
 newB_long$category <- as.factor(newB_long$category)
 
-#----------------
-# figure XY: response category vs status
+#------- Figure 2 b)
+# Response of focal individuals, measured in ordinal categories # breeder vs non-breeder
 ggplot(newB_long, aes(x = status, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
   scale_fill_manual(values = rev(c("#141c44","#042d94","steelblue","lightskyblue2","azure2"))) +
@@ -135,8 +139,9 @@ ggplot(newB_long, aes(x = status, y = value, fill = category)) +
   annotate("text", x = 1, y = 0.07, label = "5", size = 4, color = "white")+
   annotate("text", x = 2, y = 0.07, label = "22", size = 4, color = "white")
 
-# Fisher's non-parametric excact test:
-
+###################
+# Mann-Whitney U Test for different status
+# re-shape table again:
 newBCount <- newB
 for (j in 1:nrow(newBCount)){
   tmp_cat <- as.integer(rownames(newBCount)[j])
@@ -146,21 +151,24 @@ for (j in 1:nrow(newBCount)){
   newBCount[j,2] <- nbr_count
 }
 
-#----------------
-## Perform the Mann-Whitney U Test
-
 # Create the breeder and non-breeder vectors
 newBCount<- as.data.frame(newBCount)
 breeder <- rep(4:0, times = newBCount$breeder)
 non_breeder <- rep(4:0, times = newBCount$`non-breeder`)
 
-# Perform the Mann-Whitney U Test
+# Perform the Mann-Whitney U Test:
 (test_result <- wilcox.test(breeder, non_breeder)) # W = 56.5, p-value = 0.9478
 
 
-#--------------------------------------
+
+
+
+
+
+
+#------------------------------------------------------------------------------------------
 #-------  Supplemental material: -----
-#--------------------------------------
+#------------------------------------------------------------------------------------------
 
 #- PCA on helping behaviors only ------
 library(psych) # for PCA
@@ -168,47 +176,44 @@ library(psych) # for PCA
 # remove NA: (only one NA for reaction_duration, this behavior is only used for PCA)
 mydataN <- mydata[-which(is.na(mydata[,"reaction_duration"])),]
 
-# scale dataset: formula of scale: xscaled = (xoriginal – mean(x)) / sd
+# scale dataset: formula of 'scale': xscaled = (xoriginal – mean(x)) / sd
 subsetJayS <- scale(mydataN[,5:9])
 
-
-# PCA: ----------
 # scree plot:
 scree(subsetJayS) # suggested: take 2 factors
 
-#----------------
-# table XY: PCA results
-(myPCA <- psych::principal(subsetJayS, nfactors = 2, rotate = "varimax", scores = T))
+#---------- Table S.1:
+# Principle component analysis on helping behaviours
+(myPCA <- psych::principal(subsetJayS, nfactors = 2, rotate = "none", scores = T)) 
 
 # label components:
-colnames(myPCA$scores)[1] <- 'DIS'
+colnames(myPCA$scores)[1] <- 'helping'
 colnames(myPCA$scores)[2] <- 'other'
 mydataN <- cbind(mydataN,myPCA$scores) 
 
-#----------------
-# figure XY:
-box <- boxplot(DIS~treatment, data=mydataN, ylab = "PC1: helping", main=NA,
+#---------- Figure S.1:
+# Helping behaviour shown for different treatments
+box <- boxplot(helping~treatment, data=mydataN, ylab = "PC1: helping", main=NA,
                names=c("distress \nunfamiliar","distress \nfamiliar","pine \ngrosbeak","social \nunfamiliar"),
                frame = FALSE, 
                col = c("#E69F00", "firebrick2", "#999999", "#56B4E9"))
-stripchart(DIS~treatment, data=mydataN, method = "jitter", vertical=T, add=T, pch=16, cex=0.8)
+stripchart(helping~treatment, data=mydataN, method = "jitter", vertical=T, add=T, pch=16, cex=0.8)
 
 #- ANOVA for treatments (after PCA)------
 mydataN$treatment <- as.factor(mydataN$treatment)
-mydataN$target.ID <- as.factor(mydataN$target.ID)
 
-ano <- aov(DIS ~ treatment, data = mydataN) # ANOVA
+ano <- aov(helping ~ treatment, data = mydataN) # ANOVA
 
-#----------------
-# table XY: Tukey test of ANOVA
-(tukey <- TukeyHSD(ano)) # Tukey-test of ANOVA (to get p-vals)
+#---------- Table S.2:
+# Tukey test for ANOVA of PC1 
+tukey <- TukeyHSD(ano) 
+(round(tukey$treatment, digits=3))
 
-
-#----------------
-# figure XY: PCA vs social bond
-ggscatter(mydataN[which(mydataN$treatment=="distress familiar"),], x = "OBS_PercEatDyad", y = "DIS", add = "reg.line",
+#---------- Figure S.2:
+# Correlation of social bond vs PC1
+ggscatter(mydataN[which(mydataN$treatment=="distress familiar"),], x = "OBS_PercEatDyad", y = "helping", add = "reg.line",
           title = "",
           conf.int = TRUE, cor.method = "spearman", # spearman for one continuoes and one ordinal variable
-          cor.coef = TRUE,
-          xlab = "dyadic social unfamiliar bond", ylab = "PC1: helping")
+          # cor.coef = TRUE,
+          xlab = "social bond with caller", ylab = "PC1: helping")
 
