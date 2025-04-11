@@ -2,7 +2,7 @@
 ## Andrea Meltzer, Eli D. Strauss, Michael Griesser
 Data and code associated with manuscript "Siberian jays help conspecifics in distress regardless of social familiarity".
 
-#b Find exemplary playback stimuly (presented in Figure 1 in manuscript) together with their spectograms in folder "Example_calls_Figure_1"
+**Find exemplary playback stimuly (presented in Figure 1 in manuscript) together with their spectograms in folder "Example_calls_Figure_1"**
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
