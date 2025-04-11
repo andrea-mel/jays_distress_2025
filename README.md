@@ -3,12 +3,15 @@
 Data and code associated with manuscript "Siberian jays help conspecifics in distress regardless of social familiarity".
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find exemplary playback stimuly (presented in Figure 1 in manuscript) together with their spectograms in folder "Example_calls_Figure_1"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Script "Spectral_cross_correlation.R"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Calculates spectral cross correlation for each distress call element in the distress call recordings.
 - Find these recordings in folder "WAV". (Note that these are the recordings used for the spectral cross correlation. For the playback experiment, some of those were modified (e.g. elements duplicated), see information on this in "mydata.csv" - described below)
 - Uses "selection_table.txt" which contains information on beginning/end of each element to be analysed.
-
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
