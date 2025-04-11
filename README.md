@@ -1,7 +1,20 @@
 # Siberian jays help conspecifics in distress regardless of social familiarity
 ## Andrea Meltzer, Eli D. Strauss, Michael Griesser
 Data and code associated with manuscript "Siberian jays help conspecifics in distress regardless of social familiarity".
-First part of script "Analysis_distress_2025.R" for Results (Tables and Figures) for Main text, second part for Supplemental Material (Tables and Figures).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Script "Spectral_cross_correlation.R"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Calculates spectral cross correlation for each distress call element in the distress call recordings.
+- Find these recordings in folder "WAV".
+- Uses "selection_table.txt" which contains information on beginning/end of each element to be analysed.
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Script "Analysis_distress_2025.R"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--- First part for Results (Tables and Figures) for Main text, second part for Supplemental Material (Tables and Figures).
 
 Description of "mydata.csv":
 - target.ID: factor with levels 1-27, for individual identities
