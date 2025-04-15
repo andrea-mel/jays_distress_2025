@@ -3,6 +3,7 @@ rm(list=ls())
 # load packages
 library(warbleR)
 library(tidyverse)
+library(dplyr)
 
 # here: setwd to folder "WAV"!
 
@@ -22,11 +23,25 @@ range(table(selec_table$sound.files)) # 2-26
 nrow(selec_table) # 160 elements in total
 #---------------------
 
+
+#---------------------
+# calculate average SNR:
+SNR_tab <- sig2noise(selec_table,
+                     bp = c(0,20), # frequency range
+                     mar = 0.1, # measures 0.1 sec before/after (100ms)
+                     wl = 200)
+(average_snr <- SNR_tab %>%
+  group_by(sound.files) %>%
+  summarise(avg_SNR = mean(SNR, na.rm = TRUE))) # returns a table with average SNR per call sequence
+#---------------------
+
+
 #---------------------
 # perform checks of data set (resolution, etc)
 chck <- warbleR::check_sels(selec_table) 
 warbleR::check_sound_files(selec_table)
 #---------------------
+
 
 #---------------------
 # Run spectral cross-correlation (running this step may be time consuming!)
