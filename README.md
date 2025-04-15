@@ -8,6 +8,7 @@ Data and code associated with manuscript "Siberian jays help conspecifics in dis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Script "Spectral_cross_correlation.R"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Calculates SNR
 - Calculates spectral cross correlation for each distress call element in the distress call recordings.
 - Find these recordings in folder "WAV". (Note that these are the recordings used for the spectral cross correlation. For the playback experiment, some of those were modified (e.g. elements duplicated), see information on this in "mydata.csv" - described below)
 - Uses "selection_table.txt" which contains information on beginning/end of each element to be analysed.
