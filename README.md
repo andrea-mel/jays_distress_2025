@@ -27,6 +27,8 @@ Description of "mydata.csv":
 - length_call: playback track: length [s] of distress call
 - call_nr_elements: playback track: number of distress call elements within track
 - call_elongated_duplication: playback track: any distress call elements duplicated? no/yes, plus number of duplications
+- order: playback order: "exp"=distress familiar, "ctr"=distress unfamiliar, "S"=social unfamiliar, "P=pine grosbeak"
+- date: date of experiment
 - calling: number of calls in response to hearing playback (all call-types)
 - calling_distress: number of distress calls given in response to hearing playback
 - min_dist: minimum approach distance to playback speaker (0-5m, where the feeding dvice was placed at 5m)
