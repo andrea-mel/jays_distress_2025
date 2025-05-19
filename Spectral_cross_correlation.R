@@ -96,9 +96,13 @@ ggplot(xcorr_df, aes(x = Correlation, fill = Category)) +
 # due to non-normal distribution, use Mann-Whitney U Test
 (stats <- wilcox.test(Correlation ~ Category, data = xcorr_df)) # probability that the two groups come from the same distribution is essentially zero
 
-# boxplot:
-boxplot(Correlation~Category, 
-        data=xcorr_df, 
-        ylab = "Cross-correlation", xlab = "Comparison type",
-        main=NA, 
-        col = c("#E69F00","#56B4E9"))
+#------- Figure 3:
+boxplot(Correlation ~ Category, 
+        data = xcorr_df, 
+        ylab = "Cross-correlation", 
+        xlab = "Comparison type",
+        main = NA,
+        col = c("#E69F00", "#56B4E9"),
+        boxwex = 0.6)
+segments(x0 = 1.2, x1 = 1.8, y0 = 0.45, lwd = 1.5, col = "grey50")  # line above boxes 
+text(x = 1.5, y = 0.49, labels = "***", cex = 1.2, col = "grey50")

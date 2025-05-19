@@ -18,19 +18,6 @@ nS <- length(which(mydata$treatment=="social unfamiliar")) # 26
 # --- for Main text -------
 #------------------------------------------------------------------------------
 
-#------- Figure 3: 
-# Response strength to a distress call in relation to social bond 
-
-mydata$OBS_PerchDurPerEv_SQ <- sqrt(mydata$OBS_PerchDurPerEv) # take squareroot to improve distribution
-
-ggscatter(mydata[which(mydata$treatment=="distress familiar"),], x = "OBS_PerchDurPerEv_SQ", y = "category", add = "reg.line",
-          title = "",
-          conf.int = TRUE, cor.method = "spearman", # spearman for one continuoes and one ordinal variable
-          # cor.coef = TRUE,
-          xlab = "social bond with caller", ylab = "Response strength",
-          point = "FALSE") +
-  geom_jitter(height = 0.15, width = 0, alpha=0.5, size=3)
-
 ###################
 #- Cumulative link mixed models:
 mydata$category <- as.factor(mydata$category)
@@ -72,11 +59,11 @@ newdf_long <- reshape2::melt(newdf) # to re-format
 names(newdf_long) <- c("category","treatment", "value")
 newdf_long$category <- as.factor(newdf_long$category)
 
-#------- Figure 2 a): 
+#------- Figure 4 a): 
 # Response of focal individuals, measured in ordinal categories # different playback treatments
 ggplot(newdf_long, aes(x = treatment, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
-  scale_fill_manual(values = rev(c("black","#00254d","#042d94","#3f8caf","lightblue2","azure2")),
+  scale_fill_manual(values = rev(c("black","#00254d","#042d94","#6FAECB","lightblue2","azure2")),
                     labels = c("none", "minimal", "low", "medium", "high", "maximal")) +
   labs(x = "Treatment", y = "Proportion of response", title = "") +
   scale_x_discrete(labels = c("distress \nfamiliar", "distress \nunfamiliar", "social \nunfamiliar", "pine \ngrosbeak")) +
@@ -123,11 +110,11 @@ newB_long <- reshape2::melt(newB) # re-format
 names(newB_long) <- c("category","status", "value")
 newB_long$category <- as.factor(newB_long$category)
 
-#------- Figure 2 b)
+#------- Figure 4 b)
 # Response of focal individuals, measured in ordinal categories # breeder vs non-breeder
 ggplot(newB_long, aes(x = status, y = value, fill = category)) +
   geom_bar(stat = "identity", position = "fill", color = "white", width = 0.7) +
-  scale_fill_manual(values = rev(c("black","#00254d","#042d94","#3f8caf","lightblue2","azure2"))) +
+  scale_fill_manual(values = rev(c("black","#00254d","#042d94","#6FAECB","lightblue2","azure2"))) +
   labs(x = "Status of caller", y = "Proportion of response", title = "") +
   scale_x_discrete(labels = c("breeder","non-breeder")) +
   theme_classic()+
@@ -161,7 +148,19 @@ non_breeder <- rep(5:0, times = newBCount$`non-breeder`)
 # Perform the Mann-Whitney U Test:
 (test_result <- wilcox.test(breeder, non_breeder)) # W = 56.5, p-value = 0.9478
 
+###################
+#------- Figure 4 c): 
+# Response strength to a distress call in relation to social bond 
+mydata$category <- as.numeric(mydata$category)
+mydata$OBS_PerchDurPerEv_SQ <- sqrt(mydata$OBS_PerchDurPerEv) # take squareroot to improve distribution
 
+ggscatter(mydata[which(mydata$treatment=="distress familiar"),], x = "OBS_PerchDurPerEv_SQ", y = "category", add = "reg.line",
+          title = "",
+          conf.int = TRUE, cor.method = "spearman", # spearman for one continuoes and one ordinal variable
+          # cor.coef = TRUE,
+          xlab = "social bond with caller", ylab = "Response strength",
+          point = "FALSE") +
+  geom_jitter(height = 0.15, width = 0, alpha=0.5, size=3)
 
 
 
@@ -172,6 +171,67 @@ non_breeder <- rep(5:0, times = newBCount$`non-breeder`)
 #-------  Supplemental material: -----
 #------------------------------------------------------------------------------------------
 
+###################
+#- Assessing bias of order of treatment ------
+mydata$order <- as.factor(mydata$order)
+mydata$violin_color <- ifelse(mydata$order %in% c("exp,ctr", "ctr,exp"), "orange", "lightblue")
+#---------- Figure S.1:
+ggplot(mydata[which(!is.na(mydata$order)),], aes(x=order, y=category, fill=violin_color)) + 
+  geom_violin(trim = FALSE, color = "black") + 
+  geom_dotplot(binaxis = "y", stackdir = "center", 
+               dotsize = 0.5, fill = "black", color = "black") +  
+  scale_fill_manual(values = c("lightblue" = "lightblue","orange" = "orange"),
+                    labels = c("Control", "Distress")) +  # Label the legend properly
+  scale_x_discrete(labels = c(
+    "ctr,exp" = "unfamiliar->familiar",
+    "exp,ctr" = "familiar->unfamiliar",
+    "P,S" = "grosbeak->social",
+    "S,P" = "social->grosbeak"
+  )) + 
+  scale_y_continuous(breaks = c(0, 1, 2, 3, 4, 5), limits = c(0, 5)) + # limit violins to categories
+  theme_bw() +
+  theme(legend.position = "top") +  # Position the legend at the top
+  labs(x = "Order of treatment", y = "Response strength", fill = "Playback type") +
+  geom_segment(x = 1.3, y = 2.5, xend = 1.7, yend = 2.5, color = "grey50")+
+  annotate("text", x = 1.5, y = 2.7, label = "ns", size = 4, color = "grey50") +
+  geom_segment(x = 3.3, y = 2.5, xend = 3.7, yend = 2.5, color = "grey50")+
+  annotate("text", x = 3.5, y = 2.7, label = "ns", size = 4, color = "grey50")
+
+wilcox.test(category ~ order, data = mydata[mydata$order %in% c("exp,ctr","ctr,exp"), ]) #ns
+wilcox.test(category ~ order, data = mydata[mydata$order %in% c("P,S","S,P"), ]) #ns
+
+###################
+#- Assessing bias of other playback effects ------
+# check for effect of length of  distress call playback:
+library(lubridate)
+mydata$length_call_S <- period_to_seconds(ms(mydata$length_call))
+#---------- Figure S.2 a):
+ggscatter(mydata, x = "length_call_S", y = "category", add = "reg.line",
+          conf.int = TRUE, 
+          cor.coef = F, 
+          cor.method = "pearson",
+          xlab = "length call sequence", ylab = "Response strength")
+
+# check for effect of date on distress call playback:
+mydata$date <- as.Date(mydata$date, "%d.%m.%y")
+#---------- Figure S.2 b):
+ggscatter(mydata[which(mydata$treatment=="distress unfamiliar"|mydata$treatment=="distress familiar"),], x = "date", y = "category", add = "reg.line",
+          conf.int = TRUE, 
+          cor.coef = F, 
+          cor.method = "pearson",
+          xlab = "Date", ylab = "Response strength") 
+
+# check for effect of date on control call playback:
+#---------- Figure S.2 c):
+ggscatter(mydata[which(mydata$treatment=="social unfamiliar"|mydata$treatment=="pine grosbeak"),], x = "date", y = "category", add = "reg.line",
+          conf.int = TRUE, 
+          cor.coef = F, 
+          cor.method = "pearson",
+          xlab = "Date", ylab = "Response strength") 
+
+
+
+###################
 #- PCA on helping behaviors only ------
 library(psych) # for PCA
 
@@ -179,7 +239,7 @@ library(psych) # for PCA
 mydataN <- mydata[-which(is.na(mydata[,"reaction_duration"])),]
 
 # scale dataset: formula of 'scale': xscaled = (xoriginal – mean(x)) / sd
-subsetJayS <- scale(mydataN[,5:9])
+subsetJayS <- scale(mydataN[,c("calling","calling_distress","min_dist","approach_duration","reaction_duration")])
 
 # scree plot:
 scree(subsetJayS) # suggested: take 2 factors
@@ -193,7 +253,7 @@ colnames(myPCA$scores)[1] <- 'helping'
 colnames(myPCA$scores)[2] <- 'other'
 mydataN <- cbind(mydataN,myPCA$scores) 
 
-#---------- Figure S.1:
+#---------- Figure S.3 a):
 # Helping behaviour shown for different treatments
 box <- boxplot(helping~treatment, data=mydataN, ylab = "PC1: helping", main=NA,
                names=c("distress \nunfamiliar","distress \nfamiliar","pine \ngrosbeak","social \nunfamiliar"),
@@ -211,7 +271,7 @@ ano <- aov(helping ~ treatment, data = mydataN) # ANOVA
 tukey <- TukeyHSD(ano) 
 (round(tukey$treatment, digits=3))
 
-#---------- Figure S.2:
+#---------- Figure S.3 b):
 # Correlation of social bond vs PC1
 ggscatter(mydataN[which(mydataN$treatment=="distress familiar"),], x = "OBS_PerchDurPerEv_SQ", y = "helping", add = "reg.line",
           title = "",
